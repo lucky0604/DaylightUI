@@ -437,6 +437,19 @@ T.test("book builds: points you don't have yet are left for later", function()
     T.truthy(why and why:find("left for later", 1, true), why)
 end)
 
+-- A talent the tree no longer shows (retired, parked off the board) can't be
+-- bought at any level, so points a build still lists for it aren't "left for
+-- later": there is no later.
+T.test("book builds: points in a talent the tree doesn't show aren't left for later", function()
+    local nodes = BW.WarriorNodes()
+    nodes[#nodes + 1] = { id = 900001, spell = 990001, name = "Old Cruelty", group = BW.FURY, x = 9280, y = 21300, max = 5 }
+    local ns = load({ tree = { left = 10, nodes = nodes } })
+    openTalents(ns)
+    local staged, why = ns.Builds.Load({ name = "x", ranks = ranksOf(CRUELTY, 3, 900001, 5) })
+    T.eq(staged, 1)
+    T.isnil(why, "nothing waits for a talent that can't be bought")
+end)
+
 T.test("book builds: a build without a talent you learned is refused (a trainer resets them)", function()
     local ns = load({ tree = { left = 10 } })
     openTalents(ns)

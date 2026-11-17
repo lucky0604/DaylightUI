@@ -100,11 +100,14 @@ local function nextRank(data, ranks)
     return best and best.node
 end
 
+-- Ranks the build wants that can still be staged. A node the tree doesn't have
+-- (retired, dropped by the grid) can't be bought at any level, so it isn't
+-- "left for later": counting it would promise points that never arrive.
 local function missing(data, ranks)
     local n = 0
     for id, want in pairs(ranks) do
         local node = data.byID[id]
-        n = n + math.max(want - (node and node.rank or 0), 0)
+        if node then n = n + math.max(want - node.rank, 0) end
     end
     return n
 end
